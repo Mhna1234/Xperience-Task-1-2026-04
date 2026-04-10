@@ -53,6 +53,7 @@ Make sure the following are installed on your machine:
 - [ ] Maven (or use the included `mvnw` wrapper)
 - [ ] Node.js 20+
 - [ ] PostgreSQL (running locally on port 5432)
+- [ ] pgAdmin (PostgreSQL GUI client)
 - [ ] Git
 - [ ] VS Code
 - [ ] GitHub Copilot extension for VS Code
@@ -60,6 +61,10 @@ Make sure the following are installed on your machine:
 ### Install VS Code
 
 Download and install from [code.visualstudio.com](https://code.visualstudio.com/). Accept the defaults.
+
+### Install pgAdmin
+
+Download and install from [pgadmin.org](https://www.pgadmin.org/download/). Use it to create the database and run SQL in the Setup step below.
 
 ### Install GitHub Copilot
 
