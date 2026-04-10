@@ -64,7 +64,7 @@ Download and install from [code.visualstudio.com](https://code.visualstudio.com/
 
 ### Install pgAdmin
 
-Download and install from [pgadmin.org](https://www.pgadmin.org/download/). Use it to create the database and run SQL in the Setup step below.
+Download and install from [pgadmin.org](https://www.pgadmin.org/download/). During installation, **set the PostgreSQL superuser password to `1234`**. Use pgAdmin to create the database and run SQL in the Setup step below.
 
 ### Install GitHub Copilot
 
@@ -95,8 +95,7 @@ CREATE DATABASE hero;
 CREATE SCHEMA hero;
 ```
 
-The app expects username `postgres` and password `1234`.
-When installing PostgreSQL, **set the password to `1234`** to match the app configuration.
+The default credentials expected by the app are `postgres / 1234`.
 If you used a different password, update `hero-backend/src/main/resources/application.yml`.
 
 ### 3. Start the application
