@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import CreateEventForm from './components/FileUpload';
+import EventManager    from './components/MessageComposer';
+import RsvpPage        from './components/RecipientTable';
+import TokenEntry      from './components/ResultsTable';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+/**
+ * Hash-based router — no external router library needed.
+ *
+ * Routes:
+ *   #/                         → CreateEventForm (host: create an event)
+ *   #/event/<id>               → EventManager   (host: manage event + dashboard)
+ *   #/rsvp/<token>             → RsvpPage       (invitee: view invitation + RSVP)
+ *   #/rsvp                     → TokenEntry     (invitee: paste token)
+ */
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+type Route =
+  | { type: 'home' }
+  | { type: 'event'; id: number }
+  | { type: 'rsvp'; token: string }
+  | { type: 'rsvp-entry' };
+
+function parseHash(hash: string): Route {
+  const path = hash.replace(/^#\//, '');
+  if (path.startsWith('event/')) {
+    const id = parseInt(path.slice('event/'.length));
+    if (!isNaN(id)) return { type: 'event', id };
+  }
+  if (path.startsWith('rsvp/')) {
+    const token = path.slice('rsvp/'.length).trim();
+    if (token) return { type: 'rsvp', token };
+    return { type: 'rsvp-entry' };
+  }
+  if (path === 'rsvp') return { type: 'rsvp-entry' };
+  return { type: 'home' };
 }
 
-export default App
+function navigate(hash: string) {
+  window.location.hash = hash;
+}
+
+export default function App() {
+  const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
+
+  useEffect(() => {
+    const handler = () => setRoute(parseHash(window.location.hash));
+    window.addEventListener('hashchange', handler);
+    return () => window.removeEventListener('hashchange', handler);
+  }, []);
+
+  switch (route.type) {
+    case 'home':
+      return (
+        <CreateEventForm
+          onCreated={id => navigate(`/event/${id}`)}
+        />
+      );
+
+    case 'event':
+      return (
+        <EventManager eventId={route.id} />
+      );
+
+    case 'rsvp':
+      return (
+        <RsvpPage token={route.token} />
+      );
+
+    case 'rsvp-entry':
+      return (
+        <TokenEntry onToken={token => navigate(`/rsvp/${token}`)} />
+      );
+  }
+}
