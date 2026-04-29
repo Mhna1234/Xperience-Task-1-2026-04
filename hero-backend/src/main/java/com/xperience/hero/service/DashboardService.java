@@ -50,7 +50,7 @@ public class DashboardService {
                     Rsvp rsvp = rsvpByInvitationId.get(inv.getId());
                     RsvpStatus status = rsvp != null ? rsvp.getStatus() : RsvpStatus.PENDING;
                     return new DashboardResponse.AttendeeDetail(
-                            inv.getId(), inv.getEmail(), status.name(),
+                            inv.getId(), inv.getEmail(), inv.getInviteToken(), status.name(),
                             rsvp != null ? rsvp.getRespondedAt() : null);
                 })
                 .toList();

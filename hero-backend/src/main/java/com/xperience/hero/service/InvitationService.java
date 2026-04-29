@@ -40,6 +40,12 @@ public class InvitationService {
         if (!event.getHostId().equals(hostId.strip())) {
             throw BusinessException.forbidden();
         }
+        if (event.getStatus() == EventStatus.CANCELED) {
+            throw BusinessException.eventCanceled();
+        }
+        if (event.getStatus() == EventStatus.CLOSED) {
+            throw BusinessException.eventClosed();
+        }
 
         List<InviteResponse.InvitationDetail> created = new ArrayList<>();
         List<String> duplicates = new ArrayList<>();

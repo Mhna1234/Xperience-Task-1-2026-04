@@ -59,7 +59,7 @@ export default function App() {
 
     case 'event':
       return (
-        <EventManager eventId={route.id} />
+        <EventManager eventId={route.id} onBack={() => navigate('/')} />
       );
 
     case 'rsvp':

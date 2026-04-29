@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../services/bulkSendApi';
 import type { ApiError, Dashboard, EventStatus } from '../types';
-
 interface Props {
   eventId: number;
+  onBack: () => void;
 }
 
 const STATUS_LABEL: Record<EventStatus, string> = {
@@ -21,14 +21,23 @@ const RSVP_LABEL: Record<string, string> = {
   MAYBE: '❓ Maybe',
 };
 
-export default function EventManager({ eventId }: Props) {
-  const hostId = localStorage.getItem('hostId') ?? '';
+export default function EventManager({ eventId, onBack }: Props) {
+  const [hostId, setHostId] = useState(() => localStorage.getItem('hostId') ?? '');
+  const [hostIdInput, setHostIdInput] = useState(() => localStorage.getItem('hostId') ?? '');
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [error, setError] = useState('');
   const [emails, setEmails] = useState('');
   const [inviteResult, setInviteResult] = useState('');
   const [inviteLoading, setInviteLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+
+  function applyHostId() {
+    const trimmed = hostIdInput.trim();
+    if (trimmed) {
+      localStorage.setItem('hostId', trimmed);
+      setHostId(trimmed);
+    }
+  }
 
   const loadDashboard = useCallback(async () => {
     try {
@@ -101,6 +110,10 @@ export default function EventManager({ eventId }: Props) {
         <div className="bg-white rounded-2xl shadow-md p-6">
           <div className="flex items-start justify-between">
             <div>
+              <button
+                onClick={onBack}
+                className="text-xs text-blue-600 hover:underline mb-2 inline-block"
+              >← New Event</button>
               <h1 className="text-2xl font-bold text-gray-800">
                 {dashboard?.title ?? `Event #${eventId}`}
               </h1>
@@ -110,7 +123,17 @@ export default function EventManager({ eventId }: Props) {
                   <span className="ml-3 font-medium">{STATUS_LABEL[dashboard.status]}</span>
                 )}
               </p>
-              <p className="text-xs text-gray-400 mt-1">Host ID: {hostId || '(none)'}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-gray-400">Host ID:</span>
+                <input
+                  className="text-xs border border-gray-200 rounded px-2 py-0.5 w-36 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  value={hostIdInput}
+                  onChange={e => setHostIdInput(e.target.value)}
+                  onBlur={applyHostId}
+                  onKeyDown={e => { if (e.key === 'Enter') { applyHostId(); loadDashboard(); } }}
+                  placeholder="your-host-id"
+                />
+              </div>
             </div>
             <div className="flex gap-2">
               <button
@@ -207,8 +230,15 @@ export default function EventManager({ eventId }: Props) {
                       <td className="py-2 pr-4 text-gray-400 text-xs">
                         {a.respondedAt ? new Date(a.respondedAt).toLocaleString() : '—'}
                       </td>
-                      <td className="py-2 text-xs text-gray-400">
-                        #{a.invitationId}
+                      <td className="py-2 text-xs">
+                        <a
+                          href={`${window.location.origin}${window.location.pathname}#/rsvp/${a.inviteToken}`}
+                          className="text-blue-500 hover:underline break-all"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {`${window.location.origin}${window.location.pathname}#/rsvp/${a.inviteToken}`}
+                        </a>
                       </td>
                     </tr>
                   ))}

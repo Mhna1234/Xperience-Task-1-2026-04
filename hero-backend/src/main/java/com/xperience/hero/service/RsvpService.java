@@ -78,7 +78,14 @@ public class RsvpService {
 
         // Step 7: Write and flush so the promotion query sees the updated status.
         rsvp.setStatus(newStatus);
-        rsvp.setRespondedAt(Instant.now());
+        // Only update respondedAt when the status genuinely changes.
+        // For a WAITLISTED invitee re-submitting YES (no-op), preserving respondedAt
+        // maintains their FIFO queue position (invariant I8).
+        if (newStatus != previousStatus) {
+            rsvp.setRespondedAt(Instant.now());
+        } else if (rsvp.getRespondedAt() == null) {
+            rsvp.setRespondedAt(Instant.now());
+        }
         rsvpRepository.saveAndFlush(rsvp);
 
         // Step 8: Promote the next waitlisted attendee if a confirmed seat was freed.
@@ -94,8 +101,7 @@ public class RsvpService {
                     });
         }
 
-        return new RsvpOutcome(newStatus.name(), rsvp.getRespondedAt());
-    }
+        return new RsvpOutcome(newStatus.name(), rsvp.getRespondedAt());    }
 
     /**
      * Derives the RSVP outcome status from the invitee's intent and current event state.

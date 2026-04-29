@@ -23,6 +23,7 @@ public record DashboardResponse(
     public record AttendeeDetail(
             Long invitationId,
             String email,
+            String inviteToken,
             String rsvpStatus,
             Instant respondedAt
     ) {}

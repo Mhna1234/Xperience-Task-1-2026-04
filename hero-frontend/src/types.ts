@@ -63,6 +63,7 @@ export interface DashboardCounts {
 export interface AttendeeDetail {
   invitationId: number;
   email: string;
+  inviteToken: string;
   rsvpStatus: RsvpStatus;
   respondedAt: string | null;
 }
